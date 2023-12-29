@@ -1,0 +1,42 @@
+name: Tests
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  test:
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [ "3.10" ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      #----------------------------------------------
+      #       check-out repo and set-up python
+      #----------------------------------------------
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Set up python ${{ matrix.python-version }}
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install
+        run: pip install .
+      - name: Install dev requirements
+        run: pip install -r requirements-dev.txt
+
+      #----------------------------------------------
+      #              run test suite
+      #----------------------------------------------
+      - name: Run python tests
+        run: |
+          pytest tests/
